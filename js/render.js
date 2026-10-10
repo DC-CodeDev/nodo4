@@ -157,6 +157,330 @@ function renderBody(sec, data, targetEl) {
     });
 
     container.appendChild(stepsContainer);
+  } else if (sec.type === 'r22') {
+    const root = document.createElement('div');
+    root.className = 'r22-section';
+
+    // 1. Grid superior: Intro + Garrafa + Química
+    const topGrid = document.createElement('div');
+    topGrid.className = 'r22-grid-top';
+
+    // 1a. Intro card
+    if (secData.intro) {
+      const introCard = document.createElement('div');
+      introCard.className = 'r22-card r22-card--intro';
+
+      const h3 = document.createElement('h3');
+      h3.className = 'r22-card-title';
+      h3.textContent = secData.intro.title || '';
+      introCard.appendChild(h3);
+
+      const p = document.createElement('p');
+      p.className = 'r22-card-text';
+      p.textContent = secData.intro.text || '';
+      introCard.appendChild(p);
+
+      if (secData.intro.alertText) {
+        const alertBox = document.createElement('div');
+        alertBox.className = 'r22-alert-box';
+        const alertH4 = document.createElement('strong');
+        alertH4.className = 'r22-alert-title';
+        alertH4.textContent = (secData.intro.alertTitle || 'Importante') + ': ';
+        const alertSpan = document.createElement('span');
+        alertSpan.textContent = secData.intro.alertText;
+        alertBox.appendChild(alertH4);
+        alertBox.appendChild(alertSpan);
+        introCard.appendChild(alertBox);
+      }
+      topGrid.appendChild(introCard);
+    }
+
+    // 1b. Garrafa card
+    const garrafaCard = document.createElement('div');
+    garrafaCard.className = 'r22-card r22-card--garrafa';
+    if (secData.garrafaImg) {
+      const gImg = document.createElement('img');
+      gImg.src = secData.garrafaImg;
+      gImg.alt = secData.garrafaAlt || 'Garrafa R22';
+      gImg.width = 180;
+      gImg.height = 360;
+      gImg.loading = 'lazy';
+      gImg.className = 'r22-garrafa-img';
+      garrafaCard.appendChild(gImg);
+    }
+    topGrid.appendChild(garrafaCard);
+
+    // 1c. Química card
+    if (secData.quimica) {
+      const quimCard = document.createElement('div');
+      quimCard.className = 'r22-card r22-card--quimica';
+
+      const qH3 = document.createElement('h3');
+      qH3.className = 'r22-card-title';
+      qH3.textContent = secData.quimica.title || '';
+      quimCard.appendChild(qH3);
+
+      const qList = document.createElement('ul');
+      qList.className = 'r22-quim-list';
+      (secData.quimica.items || []).forEach(([k, v]) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${k}:</strong> <span>${v}</span>`;
+        qList.appendChild(li);
+      });
+      quimCard.appendChild(qList);
+
+      if (secData.quimica.moleculaImg) {
+        const molBox = document.createElement('div');
+        molBox.className = 'r22-molecula-box';
+        const molTitle = document.createElement('div');
+        molTitle.className = 'r22-molecula-title';
+        molTitle.textContent = secData.quimica.moleculaTitle || 'Estructura molecular:';
+        molBox.appendChild(molTitle);
+
+        const molImg = document.createElement('img');
+        molImg.src = secData.quimica.moleculaImg;
+        molImg.alt = secData.quimica.moleculaAlt || 'Estructura molecular';
+        molImg.width = 375;
+        molImg.height = 200;
+        molImg.loading = 'lazy';
+        molImg.className = 'r22-molecula-img';
+        molBox.appendChild(molImg);
+
+        quimCard.appendChild(molBox);
+      }
+      topGrid.appendChild(quimCard);
+    }
+    root.appendChild(topGrid);
+
+    // 2. Grid medio: Características (izquierda) + Datos técnicos (derecha)
+    const midGrid = document.createElement('div');
+    midGrid.className = 'r22-grid-mid';
+
+    // 2a. Características principales
+    const caractCol = document.createElement('div');
+    caractCol.className = 'r22-col';
+
+    const cTitle = document.createElement('h3');
+    cTitle.className = 'r22-subhead';
+    cTitle.textContent = secData.caractTitle || 'Características principales';
+    caractCol.appendChild(cTitle);
+
+    const cList = document.createElement('div');
+    cList.className = 'r22-caract-list';
+    (secData.caractItems || []).forEach((item) => {
+      const cItem = document.createElement('div');
+      cItem.className = 'r22-caract-item';
+
+      if (item.icon) {
+        const iconImg = document.createElement('img');
+        iconImg.src = item.icon;
+        iconImg.alt = '';
+        iconImg.width = 44;
+        iconImg.height = 44;
+        iconImg.loading = 'lazy';
+        iconImg.className = 'r22-item-icon';
+        cItem.appendChild(iconImg);
+      }
+
+      const textWrap = document.createElement('div');
+      textWrap.className = 'r22-caract-text';
+      const itemTitle = document.createElement('strong');
+      itemTitle.textContent = item.title;
+      const itemDesc = document.createElement('span');
+      itemDesc.textContent = item.desc;
+      textWrap.appendChild(itemTitle);
+      textWrap.appendChild(itemDesc);
+      cItem.appendChild(textWrap);
+
+      cList.appendChild(cItem);
+    });
+    caractCol.appendChild(cList);
+    midGrid.appendChild(caractCol);
+
+    // 2b. Datos técnicos (Tabla)
+    const tecCol = document.createElement('div');
+    tecCol.className = 'r22-col';
+
+    const tTitle = document.createElement('h3');
+    tTitle.className = 'r22-subhead';
+    tTitle.textContent = secData.tecnicosTitle || 'Datos técnicos';
+    tecCol.appendChild(tTitle);
+
+    const tecCols = secData.tecnicosCols || ['Parámetro', 'Valor'];
+    const tecRows = secData.tecnicosRows || [];
+
+    // Tabla Desktop
+    const tableWide = document.createElement('div');
+    tableWide.className = 'table-wide r22-table-wide';
+    tableWide.setAttribute('role', 'table');
+
+    const headRow = document.createElement('div');
+    headRow.className = 'table-row table-head-row';
+    headRow.setAttribute('role', 'row');
+    headRow.style.gridTemplateColumns = 'minmax(0, 1.4fr) minmax(0, 1.2fr)';
+    tecCols.forEach((col) => {
+      const ch = document.createElement('div');
+      ch.className = 'table-colheader';
+      ch.setAttribute('role', 'columnheader');
+      ch.textContent = col;
+      headRow.appendChild(ch);
+    });
+    tableWide.appendChild(headRow);
+
+    tecRows.forEach(([p, v]) => {
+      const rDiv = document.createElement('div');
+      rDiv.className = 'table-row';
+      rDiv.setAttribute('role', 'row');
+      rDiv.style.gridTemplateColumns = 'minmax(0, 1.4fr) minmax(0, 1.2fr)';
+
+      const c1 = document.createElement('div');
+      c1.className = 'table-cell cell-title';
+      c1.setAttribute('role', 'cell');
+      c1.textContent = p;
+
+      const c2 = document.createElement('div');
+      c2.className = 'table-cell cell-primary';
+      c2.setAttribute('role', 'cell');
+      c2.textContent = v;
+
+      rDiv.appendChild(c1);
+      rDiv.appendChild(c2);
+      tableWide.appendChild(rDiv);
+    });
+    tecCol.appendChild(tableWide);
+
+    // Tarjetas Mobile
+    const tableCards = document.createElement('div');
+    tableCards.className = 'table-cards r22-table-cards';
+    tecRows.forEach(([p, v]) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const cHead = document.createElement('div');
+      cHead.className = 'card-head';
+      const cTitleSpan = document.createElement('span');
+      cTitleSpan.className = 'card-title';
+      cTitleSpan.textContent = p;
+      cHead.appendChild(cTitleSpan);
+      const cBody = document.createElement('div');
+      cBody.className = 'card-body';
+      const cField = document.createElement('div');
+      cField.className = 'card-field';
+      const cVal = document.createElement('div');
+      cVal.className = 'card-value-primary';
+      cVal.textContent = v;
+      cField.appendChild(cVal);
+      cBody.appendChild(cField);
+      card.appendChild(cHead);
+      card.appendChild(cBody);
+      tableCards.appendChild(card);
+    });
+    tecCol.appendChild(tableCards);
+
+    midGrid.appendChild(tecCol);
+    root.appendChild(midGrid);
+
+    // 3. Grid inferior: Medidas de cuidado + Aplicaciones y Ambiente
+    const btmGrid = document.createElement('div');
+    btmGrid.className = 'r22-grid-btm';
+
+    // 3a. Medidas de cuidado
+    const cuidCol = document.createElement('div');
+    cuidCol.className = 'r22-col';
+
+    const cuidTitle = document.createElement('h3');
+    cuidTitle.className = 'r22-subhead';
+    cuidTitle.textContent = secData.cuidadosTitle || 'Medidas de cuidado';
+    cuidCol.appendChild(cuidTitle);
+
+    const cuidList = document.createElement('ul');
+    cuidList.className = 'r22-cuidados-list';
+    (secData.cuidadosItems || []).forEach((item) => {
+      const li = document.createElement('li');
+      li.className = 'r22-cuidado-item';
+
+      if (item.icon) {
+        const iconImg = document.createElement('img');
+        iconImg.src = item.icon;
+        iconImg.alt = '';
+        iconImg.width = 40;
+        iconImg.height = 40;
+        iconImg.loading = 'lazy';
+        iconImg.className = 'r22-item-icon';
+        li.appendChild(iconImg);
+      }
+      const textSpan = document.createElement('span');
+      textSpan.className = 'r22-cuidado-text';
+      textSpan.textContent = item.text;
+      li.appendChild(textSpan);
+      cuidList.appendChild(li);
+    });
+    cuidCol.appendChild(cuidList);
+    btmGrid.appendChild(cuidCol);
+
+    // 3b. Aplicaciones y Medio ambiente
+    const appsCol = document.createElement('div');
+    appsCol.className = 'r22-col';
+
+    const appTitle = document.createElement('h3');
+    appTitle.className = 'r22-subhead';
+    appTitle.textContent = secData.appsTitle || 'Aplicaciones';
+    appsCol.appendChild(appTitle);
+
+    const appsList = document.createElement('ul');
+    appsList.className = 'r22-apps-list';
+    (secData.appsItems || []).forEach((item) => {
+      const li = document.createElement('li');
+      li.className = 'r22-app-item';
+
+      if (item.icon) {
+        const iconImg = document.createElement('img');
+        iconImg.src = item.icon;
+        iconImg.alt = '';
+        iconImg.width = 38;
+        iconImg.height = 38;
+        iconImg.loading = 'lazy';
+        iconImg.className = 'r22-item-icon';
+        li.appendChild(iconImg);
+      }
+      const textSpan = document.createElement('span');
+      textSpan.className = 'r22-app-text';
+      textSpan.textContent = item.text;
+      li.appendChild(textSpan);
+      appsList.appendChild(li);
+    });
+    appsCol.appendChild(appsList);
+
+    // Banner ambiente
+    if (secData.ambienteTitle) {
+      const ambCard = document.createElement('div');
+      ambCard.className = 'r22-ambiente-banner';
+      if (secData.ambienteIcon) {
+        const ambImg = document.createElement('img');
+        ambImg.src = secData.ambienteIcon;
+        ambImg.alt = '';
+        ambImg.width = 44;
+        ambImg.height = 44;
+        ambImg.loading = 'lazy';
+        ambImg.className = 'r22-ambiente-icon';
+        ambCard.appendChild(ambImg);
+      }
+      const ambContent = document.createElement('div');
+      const ambH4 = document.createElement('strong');
+      ambH4.className = 'r22-ambiente-title';
+      ambH4.textContent = secData.ambienteTitle;
+      const ambP = document.createElement('p');
+      ambP.className = 'r22-ambiente-text';
+      ambP.textContent = secData.ambienteText || '';
+      ambContent.appendChild(ambH4);
+      ambContent.appendChild(ambP);
+      ambCard.appendChild(ambContent);
+      appsCol.appendChild(ambCard);
+    }
+
+    btmGrid.appendChild(appsCol);
+    root.appendChild(btmGrid);
+
+    container.appendChild(root);
   } else if (sec.type === 'componentes') {
     const compDiv = document.createElement('div');
     compDiv.className = 'comp';
@@ -267,7 +591,7 @@ function renderBody(sec, data, targetEl) {
 
         if (ci === 0) {
           cellDiv.classList.add('cell-title');
-          if (sec.id === 4 && CONFIG.CAL && CONFIG.CAL[ri]) {
+          if (sec.icons && CONFIG.CAL && CONFIG.CAL[ri]) {
             const calImg = document.createElement('img');
             calImg.src = CONFIG.CAL[ri];
             calImg.alt = '';
@@ -517,3 +841,37 @@ function renderSections(lang, state) {
     container.appendChild(sectionEl);
   });
 }
+
+function openLightbox(src, alt) {
+  let modal = document.getElementById('ficha-lightbox');
+  if (!modal) {
+    modal = document.createElement('dialog');
+    modal.id = 'ficha-lightbox';
+    modal.className = 'ficha-lightbox';
+    modal.innerHTML = `
+      <div class="ficha-lightbox-box">
+        <button type="button" class="ficha-lightbox-close" aria-label="Cerrar">&times;</button>
+        <img class="ficha-lightbox-img" src="" alt="">
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelector('.ficha-lightbox-close').addEventListener('click', () => {
+      modal.close();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.close();
+      }
+    });
+  }
+
+  const imgEl = modal.querySelector('.ficha-lightbox-img');
+  imgEl.src = src;
+  imgEl.alt = alt || '';
+  if (typeof modal.showModal === 'function') {
+    modal.showModal();
+  }
+}
+
